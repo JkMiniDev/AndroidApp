@@ -1,5 +1,8 @@
 name: Build APK
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ main, master ]
@@ -33,30 +36,35 @@ jobs:
 
     - name: Make gradlew executable
       run: chmod +x ./gradlew
+      working-directory: ClashBerry
 
     - name: Clean project
       run: ./gradlew clean
+      working-directory: ClashBerry
 
     - name: Build debug APK
       run: ./gradlew assembleDebug
+      working-directory: ClashBerry
 
     - name: Build release APK
       run: ./gradlew assembleRelease
+      working-directory: ClashBerry
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: ClashBerry-debug
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: ClashBerry/app/build/outputs/apk/debug/app-debug.apk
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
       with:
         name: ClashBerry-release
-        path: app/build/outputs/apk/release/app-release.apk
+        path: ClashBerry/app/build/outputs/apk/release/app-release.apk
 
     - name: Create Release
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,17 +79,16 @@ jobs:
           
           ## Download
           - Download the APK from the artifacts below
-          
         draft: false
         prerelease: false
 
-    - name: Upload Release APK to Release
+    - name: Upload Release APK to GitHub Release
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: app/build/outputs/apk/release/app-release.apk
+        asset_path: ClashBerry/app/build/outputs/apk/release/app-release.apk
         asset_name: ClashBerry-v${{ github.run_number }}.apk
         asset_content_type: application/vnd.android.package-archive
