@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ClashBerry</string>
+    
+    <!-- Main Activity -->
+    <string name="clashberry_war_search">ClashBerry War Search</string>
+    <string name="search_analyze_wars">Search and analyze Clash of Clans clan wars</string>
+    <string name="enter_clan_tag">Enter clan tag (e.g., #2Q82LRL)</string>
+    <string name="search_war">Search War</string>
+    <string name="loading_war_data">Loading war data...</string>
+    
+    <!-- War States -->
+    <string name="preparation">Preparation</string>
+    <string name="battle_day">Battle Day</string>
+    <string name="war_ended">War Ended</string>
+    <string name="unknown">Unknown</string>
+    
+    <!-- War Stats -->
+    <string name="stars">Stars</string>
+    <string name="destruction">Destruction</string>
+    <string name="attacks">Attacks</string>
+    
+    <!-- Tabs -->
+    <string name="overview">Overview</string>
+    <string name="attacks_tab">Attacks</string>
+    <string name="defenses">Defenses</string>
+    <string name="roster">Roster</string>
+    
+    <!-- War Overview -->
+    <string name="war_overview">War Overview</string>
+    <string name="team_composition">Team Composition</string>
+    <string name="remaining_attacks">Remaining Attacks</string>
+    <string name="no_attacks_yet">No attacks yet</string>
+    <string name="attacks_used_format">%1$d/%2$d attacks used</string>
+    <string name="no_defenses_recorded">No defenses recorded yet</string>
+    <string name="defended_by">Defended by:</string>
+    
+    <!-- Error Messages -->
+    <string name="error">Error</string>
+    <string name="private_war_log">Private War Log</string>
+    <string name="private_war_log_message">This clan has a private war log. War information is not publicly available.</string>
+    <string name="not_in_war">Not in War</string>
+    <string name="not_in_war_message">This clan is not currently in a war.</string>
+    <string name="clan_not_found">Clan not found. Please check the clan tag.</string>
+    <string name="network_error">Failed to fetch war data. Please try again.</string>
+    <string name="please_enter_clan_tag">Please enter a clan tag</string>
+    <string name="api_error_format">API Error: %1$d</string>
+    <string name="server_error_format">Server error: %1$s</string>
+    
+    <!-- Time -->
+    <string name="time_remaining_hours_minutes">%1$dh %2$dm</string>
+    <string name="time_remaining_minutes">%1$dm</string>
+    <string name="remaining">remaining</string>
+    <string name="cwl_round_format">CWL Round %1$d</string>
+    
+    <!-- Common -->
+    <string name="retry">Retry</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+</resources>
