@@ -1,10 +1,16 @@
-from flask import Flask, render_template_string, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 import requests
 import os
 from datetime import datetime
-import json
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for mobile app access
 
 # You'll need to get your API token from https://developer.clashofclans.com/
 COC_API_TOKEN = os.environ.get('COC_API_TOKEN', 'YOUR_API_TOKEN_HERE')
@@ -52,29 +58,28 @@ def calculate_time_remaining(end_time):
         return None, None
 
 @app.route('/')
-def index():
-    """Serve the main HTML page"""
-    # Read the HTML file
-    with open('index (2).html', 'r', encoding='utf-8') as f:
-        html_content = f.read()
-    
-    # Replace the placeholder logo with actual logo path
-    html_content = html_content.replace(
-        'src="https://via.placeholder.com/120x120/00ff88/000000?text=COC"',
-        'src="/static/logo.png"'
-    )
-    
-    return html_content
+def health_check():
+    """Health check endpoint"""
+    return jsonify({
+        'status': 'healthy',
+        'service': 'ClashBerry War Search API',
+        'version': '1.0.0'
+    })
 
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    """Serve static files"""
-    return send_from_directory('.', filename)
+@app.route('/api/health')
+def api_health():
+    """API health check"""
+    return jsonify({
+        'status': 'healthy',
+        'api_token_configured': COC_API_TOKEN != 'YOUR_API_TOKEN_HERE'
+    })
 
 @app.route('/api/war/<clan_tag>')
 def get_war_data(clan_tag):
     """Get current war data for a clan"""
     try:
+        logger.info(f"War data requested for clan: {clan_tag}")
+        
         # Format the clan tag
         formatted_tag = format_clan_tag(clan_tag)
         encoded_tag = requests.utils.quote(formatted_tag, safe='')
@@ -90,6 +95,7 @@ def get_war_data(clan_tag):
             }), 404
         
         if clan_response.status_code != 200:
+            logger.error(f"Clan API error: {clan_response.status_code}")
             return jsonify({
                 'error': 'api_error',
                 'message': f'API Error: {clan_response.status_code}'
@@ -114,6 +120,7 @@ def get_war_data(clan_tag):
         war_response = requests.get(war_url, headers=HEADERS)
         
         if war_response.status_code != 200:
+            logger.error(f"War API error: {war_response.status_code}")
             return jsonify({
                 'error': 'api_error',
                 'message': f'War API Error: {war_response.status_code}'
@@ -135,10 +142,12 @@ def get_war_data(clan_tag):
         
         # Process war data
         processed_data = process_war_data(war_data)
+        logger.info(f"Successfully processed war data for clan: {clan_tag}")
         
         return jsonify(processed_data)
         
     except Exception as e:
+        logger.error(f"Server error: {str(e)}")
         return jsonify({
             'error': 'server_error',
             'message': f'Server error: {str(e)}'
@@ -226,6 +235,8 @@ def process_clan_data(clan_raw):
 def get_clan_info(clan_tag):
     """Get basic clan information"""
     try:
+        logger.info(f"Clan info requested for: {clan_tag}")
+        
         formatted_tag = format_clan_tag(clan_tag)
         encoded_tag = requests.utils.quote(formatted_tag, safe='')
         
@@ -239,6 +250,7 @@ def get_clan_info(clan_tag):
             }), 404
         
         if response.status_code != 200:
+            logger.error(f"Clan API error: {response.status_code}")
             return jsonify({
                 'error': 'api_error',
                 'message': f'API Error: {response.status_code}'
@@ -256,6 +268,7 @@ def get_clan_info(clan_tag):
         })
         
     except Exception as e:
+        logger.error(f"Server error: {str(e)}")
         return jsonify({
             'error': 'server_error',
             'message': f'Server error: {str(e)}'
@@ -278,19 +291,13 @@ def internal_error(error):
 if __name__ == '__main__':
     # Check if API token is set
     if COC_API_TOKEN == 'YOUR_API_TOKEN_HERE':
-        print("⚠️  WARNING: Please set your COC_API_TOKEN environment variable!")
-        print("   Get your token from: https://developer.clashofclans.com/")
-        print("   Set it with: export COC_API_TOKEN='your_token_here'")
-        print()
+        logger.warning("⚠️  WARNING: Please set your COC_API_TOKEN environment variable!")
+        logger.warning("   Get your token from: https://developer.clashofclans.com/")
+        logger.warning("   Set it with: export COC_API_TOKEN='your_token_here'")
     
-    # Check if logo file exists
-    if not os.path.exists('logo.png'):
-        print("⚠️  WARNING: logo.png not found in root directory!")
-        print("   Please add your logo file as 'logo.png' in the same directory as app.py")
-        print()
+    logger.info("🚀 ClashBerry War Search API starting...")
+    logger.info("📍 Server will be available for API requests")
+    logger.info("🔍 Make sure to set your COC_API_TOKEN environment variable")
     
-    print("🚀 ClashBerry War Search starting...")
-    print("📍 Server will be available at: http://localhost:5000")
-    print("🔍 Make sure to set your COC_API_TOKEN environment variable")
-    
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
