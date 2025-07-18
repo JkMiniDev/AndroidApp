@@ -37,13 +37,19 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x ClashBerry/gradlew
       
+    - name: List ClashBerry directory
+      run: ls -la ClashBerry/
+      
+    - name: Check gradle wrapper
+      run: ls -la ClashBerry/gradle/wrapper/
+      
     - name: Build Debug APK
       working-directory: ClashBerry
-      run: ./gradlew assembleDebug --stacktrace
+      run: ./gradlew assembleDebug --stacktrace --info
       
     - name: Build Release APK
       working-directory: ClashBerry
-      run: ./gradlew assembleRelease --stacktrace
+      run: ./gradlew assembleRelease --stacktrace --info
       
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4

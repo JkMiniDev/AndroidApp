@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Background circle -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M24,24m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0"/>
+    <!-- ClashBerry shield -->
+    <path
+        android:fillColor="#00ff88"
+        android:pathData="M12,8 L12,20 Q12,24 16,28 L24,32 L32,28 Q36,24 36,20 L36,8 Q36,6 34,6 L14,6 Q12,6 12,8 Z"/>
+    <path
+        android:fillColor="#000000"
+        android:pathData="M16,12 L32,12 L32,18 Q32,20 30,22 L24,26 L18,22 Q16,20 16,18 Z"/>
+    <!-- Simple "C" -->
+    <path
+        android:fillColor="#00ff88"
+        android:pathData="M21,14 Q19,14 19,16 L19,22 Q19,24 21,24 L27,24 L27,22 L21,22 Q20,22 20,22 L20,16 Q20,15 21,15 L27,15 L27,14 Z"/>
+</vector>
