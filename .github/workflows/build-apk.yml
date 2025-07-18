@@ -34,26 +34,29 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
+    - name: Change to ClashBerry directory
+      run: cd ClashBerry
+
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: chmod +x ClashBerry/gradlew
 
     - name: Build debug APK
-      run: ./gradlew assembleDebug
+      run: cd ClashBerry && ./gradlew assembleDebug
 
     - name: Build release APK
-      run: ./gradlew assembleRelease
+      run: cd ClashBerry && ./gradlew assembleRelease
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: clashberry-debug-apk
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: ClashBerry/app/build/outputs/apk/debug/app-debug.apk
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
       with:
         name: clashberry-release-apk
-        path: app/build/outputs/apk/release/app-release-unsigned.apk
+        path: ClashBerry/app/build/outputs/apk/release/app-release-unsigned.apk
 
     - name: Create Release
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
@@ -78,9 +81,19 @@ jobs:
           ### Backend Setup
           After installation, you'll need to update the backend URL in the app settings once your backend is hosted.
           
+          ### App Icon Setup
+          To replace the app icon, rename your icon file to `ic_launcher.png` and place it in:
+          - `ClashBerry/app/src/main/res/mipmap-hdpi/` (72x72)
+          - `ClashBerry/app/src/main/res/mipmap-mdpi/` (48x48)  
+          - `ClashBerry/app/src/main/res/mipmap-xhdpi/` (96x96)
+          - `ClashBerry/app/src/main/res/mipmap-xxhdpi/` (144x144)
+          - `ClashBerry/app/src/main/res/mipmap-xxxhdpi/` (192x192)
+          
+          Or just add one `ic_launcher.png` file to any mipmap folder and Android will scale it automatically.
+          
         files: |
-          app/build/outputs/apk/debug/app-debug.apk
-          app/build/outputs/apk/release/app-release-unsigned.apk
+          ClashBerry/app/build/outputs/apk/debug/app-debug.apk
+          ClashBerry/app/build/outputs/apk/release/app-release-unsigned.apk
         draft: false
         prerelease: false
       env:
