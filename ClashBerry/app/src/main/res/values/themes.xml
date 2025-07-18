@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.ClashBerry" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/accent_green</item>
+        <item name="colorPrimaryVariant">@color/accent_green_dark</item>
+        <item name="colorOnPrimary">@color/text_on_accent</item>
+        
+        <item name="colorSecondary">@color/accent_green</item>
+        <item name="colorSecondaryVariant">@color/accent_green_dark</item>
+        <item name="colorOnSecondary">@color/text_on_accent</item>
+        
+        <item name="android:colorBackground">@color/background_primary</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        
+        <item name="colorSurface">@color/background_card</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        
+        <item name="colorError">@color/error_red</item>
+        <item name="colorOnError">@color/white</item>
+        
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/status_bar</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/primary_black</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o">false</item>
+    </style>
+
+    <style name="Theme.ClashBerry" parent="Base.Theme.ClashBerry" />
+    
+    <!-- Custom Button Style -->
+    <style name="ClashBerryButton" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/accent_green</item>
+        <item name="android:textColor">@color/text_on_accent</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:letterSpacing">0.1</item>
+    </style>
+    
+    <!-- Custom EditText Style -->
+    <style name="ClashBerryEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+        <item name="boxStrokeColor">@color/accent_green</item>
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+    </style>
+</resources>
