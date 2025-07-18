@@ -21,6 +21,11 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        gradle-version: 8.0
+
     - name: Cache Gradle packages
       uses: actions/cache@v3
       with:
@@ -33,6 +38,9 @@ jobs:
 
     - name: Make gradlew executable
       run: chmod +x ./gradlew
+
+    - name: Validate Gradle wrapper
+      uses: gradle/wrapper-validation-action@v1
 
     - name: Clean project
       run: ./gradlew clean
@@ -47,41 +55,43 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ClashBerry-debug
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: app/build/outputs/apk/debug/*.apk
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
       with:
         name: ClashBerry-release
-        path: app/build/outputs/apk/release/app-release.apk
+        path: app/build/outputs/apk/release/*.apk
 
     - name: Create Release
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
         tag_name: v${{ github.run_number }}
-        release_name: ClashBerry v${{ github.run_number }}
+        name: ClashBerry v${{ github.run_number }}
         body: |
-          Automatic release of ClashBerry Android app
+          🚀 **ClashBerry Android App v${{ github.run_number }}**
           
-          ## Changes
+          ## 📱 What's New
           - Latest updates from commit ${{ github.sha }}
+          - Built with latest dependencies
           
-          ## Download
-          - Download the APK from the artifacts below
+          ## 📥 Download
+          - **ClashBerry-v${{ github.run_number }}.apk** - Ready to install on Android
           
+          ## 🔧 Installation
+          1. Download the APK file
+          2. Enable "Install from unknown sources" on your Android device
+          3. Install the APK
+          4. Set your backend URL in the app settings
+          
+          ## 📊 Build Info
+          - Build Number: ${{ github.run_number }}
+          - Commit: ${{ github.sha }}
+          - Built: ${{ github.run_started_at }}
+        files: |
+          app/build/outputs/apk/release/*.apk
         draft: false
         prerelease: false
-
-    - name: Upload Release APK to Release
-      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: app/build/outputs/apk/release/app-release.apk
-        asset_name: ClashBerry-v${{ github.run_number }}.apk
-        asset_content_type: application/vnd.android.package-archive

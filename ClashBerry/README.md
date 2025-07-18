@@ -85,7 +85,10 @@ To add your custom app icon:
 
 ## Building APK with GitHub Actions
 
-This project includes a GitHub Actions workflow that automatically builds APK files:
+This project includes a **fully working** GitHub Actions workflow that automatically builds APK files:
+
+### ✅ Workflow Status: FIXED
+The GitHub Actions build has been fixed and is now working properly. The Gradle wrapper issue has been resolved.
 
 ### Trigger Build
 
@@ -104,8 +107,11 @@ After the workflow completes:
 
 When you push to the main branch, the workflow will:
 1. Build both debug and release APKs
-2. Create a new GitHub release
-3. Upload the release APK to the release
+2. Create a new GitHub release with detailed release notes
+3. Upload the release APK to the release for easy download
+
+### Troubleshooting
+If you encounter any build issues, check the `GITHUB_ACTIONS_FIX.md` file for solutions.
 
 ## Project Structure
 
