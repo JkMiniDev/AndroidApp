@@ -116,22 +116,26 @@ If you encounter any build issues, check the `GITHUB_ACTIONS_FIX.md` file for so
 ## Project Structure
 
 ```
-ClashBerry/
-├── app/
-│   ├── src/main/
-│   │   ├── java/com/jkminidev/clashberry/
-│   │   │   ├── adapters/          # RecyclerView adapters
-│   │   │   ├── data/              # Data models
-│   │   │   ├── network/           # API service and networking
-│   │   │   ├── ui/                # UI helpers
-│   │   │   ├── utils/             # Utility classes
-│   │   │   └── MainActivity.kt    # Main activity
-│   │   └── res/                   # Android resources
-│   └── build.gradle               # App-level Gradle config
-├── .github/workflows/             # GitHub Actions
-├── app.py                         # Backend API
-├── requirements.txt               # Python dependencies
-└── README.md                      # This file
+Repository Root/
+├── .github/workflows/             # GitHub Actions (in root)
+│   └── build-apk.yml             # APK build workflow
+├── ClashBerry/                   # Android project directory
+│   ├── app/
+│   │   ├── src/main/
+│   │   │   ├── java/com/jkminidev/clashberry/
+│   │   │   │   ├── adapters/      # RecyclerView adapters
+│   │   │   │   ├── data/          # Data models
+│   │   │   │   ├── network/       # API service and networking
+│   │   │   │   ├── ui/            # UI helpers
+│   │   │   │   ├── utils/         # Utility classes
+│   │   │   │   └── MainActivity.kt # Main activity
+│   │   │   └── res/              # Android resources
+│   │   └── build.gradle          # App-level Gradle config
+│   ├── gradle/wrapper/           # Gradle wrapper files
+│   └── README.md                 # Android project docs
+├── app.py                        # Backend API
+├── requirements.txt              # Python dependencies
+└── README.md                     # Main documentation
 ```
 
 ## API Endpoints

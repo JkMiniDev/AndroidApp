@@ -58,8 +58,8 @@ The updated workflow now:
 ## 🛠 Files Modified
 
 ### New/Updated Files:
-- `gradle/wrapper/gradle-wrapper.jar` ✅ **Added proper JAR file**
-- `.github/workflows/build-apk.yml` ✅ **Enhanced workflow**
+- `ClashBerry/gradle/wrapper/gradle-wrapper.jar` ✅ **Added proper JAR file**
+- `.github/workflows/build-apk.yml` ✅ **Enhanced workflow (moved to root)**
 
 ### Key Improvements:
 - **Gradle Build Action**: Uses `gradle/gradle-build-action@v2`

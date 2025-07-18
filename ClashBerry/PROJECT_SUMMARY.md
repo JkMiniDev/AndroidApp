@@ -86,7 +86,7 @@ ClashBerry/app/src/main/java/com/jkminidev/clashberry/
 1. **Android App** - Complete project in `ClashBerry/`
 2. **Backend API** - `app.py` (redesigned for web service)
 3. **Dependencies** - `requirements.txt`
-4. **CI/CD** - `.github/workflows/build-apk.yml`
+4. **CI/CD** - `.github/workflows/build-apk.yml` (in repository root)
 5. **Documentation** - `README.md`, `ICON_INSTRUCTIONS.md`
 
 ### Removed Files
