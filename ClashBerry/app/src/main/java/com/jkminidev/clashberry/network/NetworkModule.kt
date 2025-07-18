@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 object NetworkModule {
     
     // This will be updated when you host the backend
-    private const val BASE_URL = "https://your-backend-url.com/"
+    private const val BASE_URL = "https://webapp-es6l.onrender.com"
     
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
