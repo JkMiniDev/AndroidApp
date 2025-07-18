@@ -9,7 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.google.android.material.card.MaterialCardView
+import androidx.cardview.widget.CardView
 import com.google.android.material.tabs.TabLayout
 import com.jkminidev.clashberry.R
 import com.jkminidev.clashberry.data.WarResponse
@@ -27,7 +27,7 @@ class WarDisplayHelper(private val context: Context) {
     
     private fun createWarCard(warData: WarResponse): View {
         val inflater = LayoutInflater.from(context)
-        val cardView = inflater.inflate(R.layout.war_card, null) as MaterialCardView
+        val cardView = inflater.inflate(R.layout.war_card, null) as CardView
         
         setupWarHeader(cardView, warData)
         setupWarStats(cardView, warData)
@@ -36,7 +36,7 @@ class WarDisplayHelper(private val context: Context) {
         return cardView
     }
     
-    private fun setupWarHeader(cardView: MaterialCardView, warData: WarResponse) {
+    private fun setupWarHeader(cardView: CardView, warData: WarResponse) {
         // Clan 1 info
         val ivClan1Badge = cardView.findViewById<android.widget.ImageView>(R.id.ivClan1Badge)
         val tvClan1Name = cardView.findViewById<TextView>(R.id.tvClan1Name)
@@ -96,7 +96,7 @@ class WarDisplayHelper(private val context: Context) {
         tvWarStatus.setTextColor(ContextCompat.getColor(context, statusColor))
     }
     
-    private fun setupWarStats(cardView: MaterialCardView, warData: WarResponse) {
+    private fun setupWarStats(cardView: CardView, warData: WarResponse) {
         val attacksExpected = if (warData.warType == "cwl") 1 else 2
         val totalAttacks = warData.teamSize * attacksExpected
         
@@ -117,7 +117,7 @@ class WarDisplayHelper(private val context: Context) {
             "${warData.opponent.attacks}/$totalAttacks"
     }
     
-    private fun setupTabLayout(cardView: MaterialCardView, warData: WarResponse) {
+    private fun setupTabLayout(cardView: CardView, warData: WarResponse) {
         val tabLayout = cardView.findViewById<TabLayout>(R.id.tabLayout)
         val contentContainer = cardView.findViewById<LinearLayout>(R.id.contentContainer)
         

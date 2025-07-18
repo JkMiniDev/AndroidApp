@@ -63,18 +63,19 @@
                 style="@style/ClashBerry.TextInputLayout"
                 android:hint="@string/search_hint">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/etClanTag"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/ClashBerry.TextInputEditText"
                     android:inputType="textNoSuggestions|textCapCharacters"
                     android:maxLength="15"
-                    android:imeOptions="actionSearch" />
+                    android:imeOptions="actionSearch"
+                    android:padding="16dp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnSearch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -82,9 +83,7 @@
                 style="@style/ClashBerry.Button"
                 android:text="@string/search_war"
                 android:textSize="18sp"
-                android:padding="16dp"
-                app:icon="@drawable/ic_search"
-                app:iconGravity="textStart" />
+                android:padding="16dp" />
 
             <!-- Loading Indicator -->
             <LinearLayout
@@ -96,11 +95,11 @@
                 android:padding="32dp"
                 android:visibility="gone">
 
-                <com.google.android.material.progressindicator.CircularProgressIndicator
+                <ProgressBar
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:indicatorColor="@color/accent_color" />
+                    android:indeterminateTint="@color/accent_color" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -112,7 +111,7 @@
             </LinearLayout>
 
             <!-- Error Layout -->
-            <com.google.android.material.card.MaterialCardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/cardError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -188,7 +187,7 @@
 
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+            </androidx.cardview.widget.CardView>
 
             <!-- War Results Layout -->
             <LinearLayout
