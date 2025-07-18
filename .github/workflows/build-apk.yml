@@ -21,21 +21,6 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Setup Gradle
-      uses: gradle/gradle-build-action@v2
-      with:
-        gradle-version: 8.0
-
-    - name: Cache Gradle packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('ClashBerry/**/*.gradle*', 'ClashBerry/**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
     - name: Make gradlew executable
       run: chmod +x ./ClashBerry/gradlew
 
@@ -43,6 +28,9 @@ jobs:
       uses: gradle/wrapper-validation-action@v1
       with:
         gradle-wrapper-path: ClashBerry/gradle/wrapper/gradle-wrapper.jar
+
+    - name: Setup Gradle Build Action
+      uses: gradle/gradle-build-action@v2
 
     - name: Clean project
       run: cd ClashBerry && ./gradlew clean
