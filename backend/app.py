@@ -1,10 +1,17 @@
-from flask import Flask, render_template_string, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 import requests
 import os
 from datetime import datetime
 import json
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes to allow Android app access
 
 # You'll need to get your API token from https://developer.clashofclans.com/
 COC_API_TOKEN = os.environ.get('COC_API_TOKEN', 'YOUR_API_TOKEN_HERE')
@@ -53,43 +60,50 @@ def calculate_time_remaining(end_time):
 
 @app.route('/')
 def index():
-    """Serve the main HTML page"""
-    # Read the HTML file
-    with open('index (2).html', 'r', encoding='utf-8') as f:
-        html_content = f.read()
-    
-    # Replace the placeholder logo with actual logo path
-    html_content = html_content.replace(
-        'src="https://via.placeholder.com/120x120/00ff88/000000?text=COC"',
-        'src="/static/logo.png"'
-    )
-    
-    return html_content
+    """API status endpoint"""
+    return jsonify({
+        'service': 'ClashBerry API',
+        'status': 'running',
+        'version': '1.0.0',
+        'endpoints': {
+            'war_data': '/api/war/<clan_tag>',
+            'clan_info': '/api/clan/<clan_tag>',
+            'health': '/health'
+        }
+    })
 
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    """Serve static files"""
-    return send_from_directory('.', filename)
+@app.route('/health')
+def health_check():
+    """Health check endpoint for monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.utcnow().isoformat(),
+        'api_token_configured': COC_API_TOKEN != 'YOUR_API_TOKEN_HERE'
+    })
 
 @app.route('/api/war/<clan_tag>')
 def get_war_data(clan_tag):
     """Get current war data for a clan"""
     try:
+        logger.info(f"Fetching war data for clan: {clan_tag}")
+        
         # Format the clan tag
         formatted_tag = format_clan_tag(clan_tag)
         encoded_tag = requests.utils.quote(formatted_tag, safe='')
         
         # First, get clan info to check if war log is public
         clan_url = f"{COC_API_BASE}/clans/{encoded_tag}"
-        clan_response = requests.get(clan_url, headers=HEADERS)
+        clan_response = requests.get(clan_url, headers=HEADERS, timeout=10)
         
         if clan_response.status_code == 404:
+            logger.warning(f"Clan not found: {formatted_tag}")
             return jsonify({
                 'error': 'clan_not_found',
                 'message': 'Clan not found. Please check the clan tag.'
             }), 404
         
         if clan_response.status_code != 200:
+            logger.error(f"Clan API error: {clan_response.status_code}")
             return jsonify({
                 'error': 'api_error',
                 'message': f'API Error: {clan_response.status_code}'
@@ -99,6 +113,7 @@ def get_war_data(clan_tag):
         
         # Check if war log is public
         if not clan_data.get('isWarLogPublic', False):
+            logger.info(f"Private war log for clan: {formatted_tag}")
             return jsonify({
                 'error': 'private_war_log',
                 'message': 'This clan has a private war log.',
@@ -111,9 +126,10 @@ def get_war_data(clan_tag):
         
         # Get current war data
         war_url = f"{COC_API_BASE}/clans/{encoded_tag}/currentwar"
-        war_response = requests.get(war_url, headers=HEADERS)
+        war_response = requests.get(war_url, headers=HEADERS, timeout=10)
         
         if war_response.status_code != 200:
+            logger.error(f"War API error: {war_response.status_code}")
             return jsonify({
                 'error': 'api_error',
                 'message': f'War API Error: {war_response.status_code}'
@@ -123,6 +139,7 @@ def get_war_data(clan_tag):
         
         # Check if clan is in war
         if war_data.get('state') == 'notInWar':
+            logger.info(f"Clan not in war: {formatted_tag}")
             return jsonify({
                 'error': 'not_in_war',
                 'message': 'This clan is not currently in a war.',
@@ -135,10 +152,19 @@ def get_war_data(clan_tag):
         
         # Process war data
         processed_data = process_war_data(war_data)
+        logger.info(f"Successfully processed war data for clan: {formatted_tag}")
         
         return jsonify(processed_data)
         
+    except requests.RequestException as e:
+        logger.error(f"Network error: {str(e)}")
+        return jsonify({
+            'error': 'network_error',
+            'message': 'Failed to connect to Clash of Clans API'
+        }), 503
+        
     except Exception as e:
+        logger.error(f"Server error: {str(e)}")
         return jsonify({
             'error': 'server_error',
             'message': f'Server error: {str(e)}'
@@ -148,55 +174,42 @@ def process_war_data(war_data):
     """Process raw war data into formatted response"""
     
     # Calculate time remaining
-    time_remaining, time_label = None, None
-    if war_data.get('state') in ['preparation', 'inWar']:
-        if war_data.get('state') == 'preparation':
-            time_remaining, time_label = calculate_time_remaining(war_data.get('startTime', ''))
-        else:
-            time_remaining, time_label = calculate_time_remaining(war_data.get('endTime', ''))
+    time_remaining, status = calculate_time_remaining(war_data.get('endTime', ''))
     
     # Determine war type (regular war vs CWL)
-    war_type = 'regular'
-    cwl_round = None
-    if war_data.get('attacksPerMember') == 1:
-        war_type = 'cwl'
-        # Try to determine CWL round from preparation time or other indicators
-        # This is a simplified detection
-        cwl_round = 1
+    war_type = 'cwl' if war_data.get('isCWL', False) else 'regular'
     
-    # Process clan data
-    clan_data = process_clan_data(war_data['clan'])
-    opponent_data = process_clan_data(war_data['opponent'])
-    
-    result = {
+    processed_data = {
         'state': war_data.get('state'),
         'teamSize': war_data.get('teamSize'),
         'warType': war_type,
-        'cwlRound': cwl_round,
+        'preparationStartTime': war_data.get('preparationStartTime'),
+        'startTime': war_data.get('startTime'),
+        'endTime': war_data.get('endTime'),
         'timeRemaining': time_remaining,
-        'timeLabel': time_label,
-        'clan': clan_data,
-        'opponent': opponent_data
+        'clan': process_clan_data(war_data.get('clan', {})),
+        'opponent': process_clan_data(war_data.get('opponent', {}))
     }
     
-    return result
+    return processed_data
 
 def process_clan_data(clan_raw):
-    """Process clan data from API response"""
-    
+    """Process clan data from war response"""
     members = []
+    
     for member in clan_raw.get('members', []):
         # Process attacks
         attacks = []
+        attacks_used = 0
+        
         for attack in member.get('attacks', []):
             attacks.append({
-                'defenderTag': attack.get('defenderTag'),
-                'stars': attack.get('stars'),
-                'destructionPercentage': attack.get('destructionPercentage')
+                'stars': attack.get('stars', 0),
+                'destructionPercentage': attack.get('destructionPercentage', 0),
+                'defenderTag': attack.get('defenderTag', ''),
+                'order': attack.get('order', 0)
             })
-        
-        # Calculate attacks used
-        attacks_used = len(attacks)
+            attacks_used += 1
         
         members.append({
             'tag': member.get('tag'),
@@ -226,11 +239,13 @@ def process_clan_data(clan_raw):
 def get_clan_info(clan_tag):
     """Get basic clan information"""
     try:
+        logger.info(f"Fetching clan info for: {clan_tag}")
+        
         formatted_tag = format_clan_tag(clan_tag)
         encoded_tag = requests.utils.quote(formatted_tag, safe='')
         
         clan_url = f"{COC_API_BASE}/clans/{encoded_tag}"
-        response = requests.get(clan_url, headers=HEADERS)
+        response = requests.get(clan_url, headers=HEADERS, timeout=10)
         
         if response.status_code == 404:
             return jsonify({
@@ -255,7 +270,15 @@ def get_clan_info(clan_tag):
             'isWarLogPublic': clan_data.get('isWarLogPublic', False)
         })
         
+    except requests.RequestException as e:
+        logger.error(f"Network error: {str(e)}")
+        return jsonify({
+            'error': 'network_error',
+            'message': 'Failed to connect to Clash of Clans API'
+        }), 503
+        
     except Exception as e:
+        logger.error(f"Server error: {str(e)}")
         return jsonify({
             'error': 'server_error',
             'message': f'Server error: {str(e)}'
@@ -275,22 +298,25 @@ def internal_error(error):
         'message': 'Internal server error'
     }), 500
 
+@app.errorhandler(429)
+def rate_limit_error(error):
+    return jsonify({
+        'error': 'rate_limit',
+        'message': 'Too many requests. Please try again later.'
+    }), 429
+
 if __name__ == '__main__':
     # Check if API token is set
     if COC_API_TOKEN == 'YOUR_API_TOKEN_HERE':
-        print("⚠️  WARNING: Please set your COC_API_TOKEN environment variable!")
-        print("   Get your token from: https://developer.clashofclans.com/")
-        print("   Set it with: export COC_API_TOKEN='your_token_here'")
-        print()
+        logger.warning("⚠️  WARNING: Please set your COC_API_TOKEN environment variable!")
+        logger.warning("   Get your token from: https://developer.clashofclans.com/")
+        logger.warning("   Set it with: export COC_API_TOKEN='your_token_here'")
     
-    # Check if logo file exists
-    if not os.path.exists('logo.png'):
-        print("⚠️  WARNING: logo.png not found in root directory!")
-        print("   Please add your logo file as 'logo.png' in the same directory as app.py")
-        print()
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
     
-    print("🚀 ClashBerry War Search starting...")
-    print("📍 Server will be available at: http://localhost:5000")
-    print("🔍 Make sure to set your COC_API_TOKEN environment variable")
+    logger.info("🚀 ClashBerry API starting...")
+    logger.info(f"📍 Server will be available at: http://0.0.0.0:{port}")
+    logger.info("🔍 Make sure to set your COC_API_TOKEN environment variable")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)
