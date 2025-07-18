@@ -1,0 +1,12 @@
+# PLACEHOLDER FOR APP ICON
+# 
+# Replace this file with your app icon (ic_launcher.png)
+# 
+# Requirements:
+# - PNG format
+# - Recommended size: 192x192 pixels for xxxhdpi
+# - Should be your ClashBerry app icon
+# 
+# This placeholder will be replaced when you add your actual icon file
+# Just name your icon file "ic_launcher.png" and place it in this location:
+# ClashBerry/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png

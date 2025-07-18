@@ -1,10 +1,12 @@
-from flask import Flask, render_template_string, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 import requests
 import os
 from datetime import datetime
 import json
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # You'll need to get your API token from https://developer.clashofclans.com/
 COC_API_TOKEN = os.environ.get('COC_API_TOKEN', 'YOUR_API_TOKEN_HERE')
@@ -52,24 +54,26 @@ def calculate_time_remaining(end_time):
         return None, None
 
 @app.route('/')
-def index():
-    """Serve the main HTML page"""
-    # Read the HTML file
-    with open('index (2).html', 'r', encoding='utf-8') as f:
-        html_content = f.read()
-    
-    # Replace the placeholder logo with actual logo path
-    html_content = html_content.replace(
-        'src="https://via.placeholder.com/120x120/00ff88/000000?text=COC"',
-        'src="/static/logo.png"'
-    )
-    
-    return html_content
+def health_check():
+    """Health check endpoint"""
+    return jsonify({
+        'status': 'healthy',
+        'service': 'ClashBerry API',
+        'version': '1.0.0',
+        'endpoints': [
+            '/api/war/<clan_tag>',
+            '/api/clan/<clan_tag>',
+            '/health'
+        ]
+    })
 
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    """Serve static files"""
-    return send_from_directory('.', filename)
+@app.route('/health')
+def health():
+    """Health check endpoint for monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.utcnow().isoformat()
+    })
 
 @app.route('/api/war/<clan_tag>')
 def get_war_data(clan_tag):
@@ -283,14 +287,13 @@ if __name__ == '__main__':
         print("   Set it with: export COC_API_TOKEN='your_token_here'")
         print()
     
-    # Check if logo file exists
-    if not os.path.exists('logo.png'):
-        print("⚠️  WARNING: logo.png not found in root directory!")
-        print("   Please add your logo file as 'logo.png' in the same directory as app.py")
-        print()
-    
-    print("🚀 ClashBerry War Search starting...")
-    print("📍 Server will be available at: http://localhost:5000")
+    print("🚀 ClashBerry API starting...")
+    print("📍 Available endpoints:")
+    print("   GET / - API health check")
+    print("   GET /health - Health status")
+    print("   GET /api/war/<clan_tag> - Get war data")
+    print("   GET /api/clan/<clan_tag> - Get clan info")
     print("🔍 Make sure to set your COC_API_TOKEN environment variable")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
